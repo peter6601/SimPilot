@@ -1,0 +1,37 @@
+name: SimPilotServer
+options:
+  bundleIdPrefix: local.simpilot
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGNING_ALLOWED: "NO"
+    SWIFT_VERSION: "5.0"
+targets:
+  ElementsHost:
+    type: application
+    platform: iOS
+    sources: [Host]
+    info:
+      path: Host/Info.plist
+      properties:
+        UILaunchScreen: {}
+  ElementsUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    dependencies:
+      - target: ElementsHost
+    settings:
+      base:
+        TEST_TARGET_NAME: ElementsHost
+        GENERATE_INFOPLIST_FILE: "YES"
+schemes:
+  SimPilotServer:
+    build:
+      targets:
+        ElementsHost: all
+        ElementsUITests: [test]
+    test:
+      targets: [ElementsUITests]

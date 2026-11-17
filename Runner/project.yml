@@ -1,0 +1,36 @@
+name: SimPilotRunner
+options:
+  bundleIdPrefix: local.simpilot
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    CODE_SIGNING_ALLOWED: "NO"
+    SWIFT_VERSION: "5.0"
+targets:
+  SimPilotHost:
+    type: application
+    platform: iOS
+    sources: [Host]
+    info:
+      path: Host/Info.plist
+      properties:
+        UILaunchScreen: {}
+  SimPilotRunner:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    dependencies:
+      - target: SimPilotHost
+    settings:
+      base:
+        TEST_TARGET_NAME: SimPilotHost
+        GENERATE_INFOPLIST_FILE: "YES"
+schemes:
+  SimPilotRunner:
+    build:
+      targets:
+        SimPilotHost: all
+        SimPilotRunner: [test]
+    test:
+      targets: [SimPilotRunner]

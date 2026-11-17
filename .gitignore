@@ -1,0 +1,11 @@
+.build/
+build/
+*.xcodeproj/
+.DS_Store
+# 技術驗證的輸出含公司 app 畫面與帳號資訊，不進版控
+spikes/acceptance/
+spikes/**/shots/
+spikes/**/*.json
+spikes/**/build/
+spikes/ax-bridge/axdump
+spikes/simapp-ax/probe
