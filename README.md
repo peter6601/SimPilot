@@ -27,6 +27,9 @@ build/simpilot elements --udid <UDID> > out.json
 build/simpilot interact tap --label 設定 --udid <UDID>
 build/simpilot status
 build/simpilot stop
+
+build/simpilot duo pose book --udid <UDID>   # closed | book | open
+build/simpilot duo hinge --udid <UDID>
 ```
 
 - CLI 找不到 daemon 會自己開 `build/SimPilot.app`（或 `/Applications/SimPilot.app`）；兩個都沒有就在背景起 `simpilot daemon`。
@@ -35,10 +38,17 @@ build/simpilot stop
 - tap 回 `data.tapped`、`data.screen_changed`、`data.appeared`、`data.disappeared`、`data.moved`（兩邊都有、但位置變了的 label，例如兩張卡片對調位置；打開 sheet 時，被蓋住的元素和 sheet 裡的同名元素也會算進來）、`data.value_changed`（value 變了的 label）。只點 hittable 的元素，button 優先。
 - exit code：0 成功、1 失敗（`error` 欄位：`missing_udid`、`app_not_running`、`app_not_foreground`、`not_found`、`not_hittable`、`runner_not_built`、`xcodebuild_busy`、`runner_exited`、`runner_timeout`）。
 
+## Duo 姿態（`duo pose`／`duo hinge`）
+
+- `duo pose` 點 Device Hub 視窗上的 Closed／Partially Open／Open，切完用 `devicectl device info displays` 確認亮的是哪一面（closed 要亮外螢幕，book／open 要亮內螢幕），對不上就重點，最多 3 次。book 會先切 Open 再切 Partially Open，因為從 Closed 直接掀到半開會一直停在外螢幕。
+- 需要：Device Hub 開著、選在這台模擬器上（不是就回 `devicehub_wrong_device`，不會點到別台），跑 simpilot 的終端機或 app 要有「輔助使用」權限。這兩個指令直接在 CLI 執行，不經 daemon。
+- `duo hinge` 回 `hinge_state`（`closed`／`partiallyOpen`／`openFlat`）、`active_display`、`display_orientation`。**角度一律是 null，狀態是推斷的**：亮外螢幕就是 closed；亮內螢幕時，book 和 open 靠 SimPilot 上次設的姿態來分，分不出來回 `unknown`。`source` 欄位會寫出依據。
+- 讀不到真正角度的原因：`devicectl` 沒有 hinge 指令；`UIHingeInteraction` 只在前景 app 收得到更新（runner 在背景，實測 0 筆）；Device Hub 畫面上不顯示角度。CoreDevice 私有框架裡有讀角度的 action，要逆向 Swift 私有 API 才能用，還沒做。
+
 ## 限制
 
 - 不列被 fullScreenCover／sheet 蓋住的下層元素，所以元素數比較少；`--baseline` 照樣可用。
-- 還沒有 `duo hinge`、`duo pose`、`screenshot`、`interact` 的其他動作。
+- `duo pose` 只有三個固定姿態（Device Hub 的按鈕），`duo hinge` 沒有角度；還沒有 `screenshot` 和 `interact` 的其他動作。
 
 ## 檔案
 

@@ -7,6 +7,8 @@ simpilot — iOS 模擬器的元素讀取與點擊（輸出 JSON 到 stdout）
 
   simpilot elements --udid <UDID> [--bundle <id>]
   simpilot interact tap --label <文字> --udid <UDID> [--bundle <id>]
+  simpilot duo pose <closed|book|open> --udid <UDID>   用 Device Hub 切姿態並確認亮的那一面
+  simpilot duo hinge --udid <UDID>                     讀回姿態（推斷值：亮面＋上次設的姿態，角度為 null）
   simpilot status
   simpilot stop [--udid <UDID>]          關掉 runner，讓出 xcodebuild
   simpilot runner build                  build 模擬器裡的 XCUITest server（第一次、或改了 Runner/ 之後）
@@ -117,6 +119,26 @@ case "interact":
     guard let label = option("--label") else { fail("missing_label", "--label is required") }
     // 不認得的參數（例如 --screen latest）接受但忽略
     emit(send(["cmd": "tap", "udid": udid, "label": label, "bundle": option("--bundle") ?? ""]))
+case "duo":
+    // 不經 daemon：點 Device Hub 要用跑 CLI 的這個 app 的「輔助使用」權限
+    guard let udid = option("--udid") else { fail("missing_udid", "--udid is required") }
+    do {
+        switch args.dropFirst().first {
+        case "pose":
+            guard let name = args.dropFirst(2).first, let pose = Duo.Pose(rawValue: name) else {
+                fail("bad_pose", "usage: simpilot duo pose closed|book|open --udid <UDID>")
+            }
+            emit(try Duo.setPose(pose, udid: udid))
+        case "hinge":
+            emit(try Duo.hinge(udid: udid))
+        default:
+            fail("unsupported", "usage: simpilot duo pose|hinge ...")
+        }
+    } catch let e as Duo.DuoError {
+        emit(e.json)
+    } catch {
+        fail("duo_failed", "\(error)")
+    }
 case "status":
     emit(send(["cmd": "status"], timeout: 10))
 case "stop":

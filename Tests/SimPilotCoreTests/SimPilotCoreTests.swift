@@ -40,3 +40,39 @@ final class SimPilotCoreTests: XCTestCase {
         XCTAssertGreaterThan(RunnerManager.freePort(), 0)
     }
 }
+
+final class DuoTests: XCTestCase {
+    private func displays(_ items: [[String: Any]]) -> Data {
+        try! JSONSerialization.data(withJSONObject: ["result": ["displays": items]])
+    }
+
+    func testOuterDisplayIsThePrimaryOne() throws {
+        let d = displays([
+            ["name": "LCD", "primary": true, "active": true, "currentOrientation": "rot0"],
+            ["name": "LCD-1", "primary": false, "active": false, "currentOrientation": "rot90"],
+        ])
+        XCTAssertEqual(try Duo.parseDisplays(d), Duo.DisplayState(active: .outer, orientation: "rot0", name: "LCD"))
+    }
+
+    func testInnerDisplayWithRotation() throws {
+        let d = displays([
+            ["name": "LCD", "primary": true, "active": false, "currentOrientation": "rot0"],
+            ["name": "LCD-1", "primary": false, "active": true, "currentOrientation": "rot180"],
+        ])
+        XCTAssertEqual(try Duo.parseDisplays(d).active, .inner)
+        XCTAssertEqual(try Duo.parseDisplays(d).orientation, "rot180")
+    }
+
+    func testSingleDisplayDeviceIsRejected() {
+        let d = displays([["name": "LCD", "primary": true, "active": true, "currentOrientation": "rot0"]])
+        XCTAssertThrowsError(try Duo.parseDisplays(d)) { XCTAssertEqual(($0 as? Duo.DuoError)?.code, "not_a_duo") }
+    }
+
+    func testPoseMappingStrings() {
+        XCTAssertEqual(Duo.Pose.closed.hingeState, "closed")
+        XCTAssertEqual(Duo.Pose.book.hingeState, "partiallyOpen")
+        XCTAssertEqual(Duo.Pose.open.hingeState, "openFlat")
+        XCTAssertEqual(Duo.Pose.closed.expectedDisplay, .outer)
+        XCTAssertEqual(Duo.Pose.book.expectedDisplay, .inner)
+    }
+}
