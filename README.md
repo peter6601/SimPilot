@@ -32,7 +32,7 @@ build/simpilot stop
 - CLI 找不到 daemon 會自己開 `build/SimPilot.app`（或 `/Applications/SimPilot.app`）；兩個都沒有就在背景起 `simpilot daemon`。
 - 沒給 `--bundle` 時，從模擬器上正在跑的 app 裡挑在前景的那個。
 - 輸出：`{"ok": true, "data": {"canvasSize": [w, h], "elements": [...]}}`，元素有 `id`、`label`、`role`、`frame`、`stableKey`、`identifier`、`parentId`、`value`。canvasSize 和 frame 是目前介面方向的 pt 座標。
-- tap 回 `data.tapped`、`data.screen_changed`、`data.appeared`、`data.disappeared`。只點 hittable 的元素，button 優先。
+- tap 回 `data.tapped`、`data.screen_changed`、`data.appeared`、`data.disappeared`、`data.moved`（兩邊都有、但位置變了的 label，例如兩張卡片對調位置；打開 sheet 時，被蓋住的元素和 sheet 裡的同名元素也會算進來）、`data.value_changed`（value 變了的 label）。只點 hittable 的元素，button 優先。
 - exit code：0 成功、1 失敗（`error` 欄位：`missing_udid`、`app_not_running`、`app_not_foreground`、`not_found`、`not_hittable`、`runner_not_built`、`xcodebuild_busy`、`runner_exited`、`runner_timeout`）。
 
 ## 限制

@@ -119,6 +119,8 @@ final class ServerTests: XCTestCase {
             "screen_changed": before.hash != after.hash,
             "appeared": Array(after.labels.subtracting(before.labels).sorted().prefix(30)),
             "disappeared": Array(before.labels.subtracting(after.labels).sorted().prefix(30)),
+            "moved": Array(before.moved(to: after).prefix(30)),
+            "value_changed": Array(before.valueChanged(to: after).prefix(30)),
         ] as [String: Any]]
     }
 }

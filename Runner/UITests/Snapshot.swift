@@ -88,7 +88,30 @@ enum Snapshot {
         }
     }
 
-    struct Signature { let hash: Int; let labels: Set<String> }
+    struct Signature {
+        let hash: Int
+        let labels: Set<String>
+        /// label → 畫面上每個同名元素的左上角（"x,y"），排序後比較，同名元素多個時也能比
+        let positions: [String: [String]]
+        /// label → 每個同名元素的 value，排序後比較
+        let values: [String: [String]]
+
+        /// 兩邊都有、但位置變了的 label（例：兩張卡片對調位置，label 集合不變）。
+        /// 同名元素的個數有變的不算：那是多了或少了一個同名元素，不是移動。
+        /// 限制：只看 label 和位置，分不出「同一個元素移動」和「舊的被蓋住、新的同名元素出現」。
+        /// 例：打開設定 sheet 時，畫面上的「中文」被蓋住（不再列出），sheet 裡的「中文」出現在別處，也會算進來。
+        func moved(to after: Signature) -> [String] {
+            labels.intersection(after.labels).filter {
+                let a = positions[$0] ?? [], b = after.positions[$0] ?? []
+                return a.count == b.count && a != b
+            }.sorted()
+        }
+
+        /// 兩邊都有、但 value 變了的 label（例：開關、輸入框）
+        func valueChanged(to after: Signature) -> [String] {
+            labels.intersection(after.labels).filter { values[$0] != after.values[$0] }.sorted()
+        }
+    }
 
     /// 畫面上看得到、有 label 的元素的 label＋位置＋value。
     static func signature(_ app: XCUIApplication) throws -> Signature {
@@ -96,17 +119,25 @@ enum Snapshot {
         let bounds = canvasFrame(root)
         var hasher = Hasher()
         var labels = Set<String>()
+        var positions: [String: [String]] = [:]
+        var values: [String: [String]] = [:]
         func walk(_ s: XCUIElementSnapshot) {
             let r = s.frame.intersection(bounds)
             if !r.isNull && !r.isEmpty && !s.label.isEmpty {
+                let x = Int(s.frame.minX), y = Int(s.frame.minY)
+                let value = String(describing: s.value)
                 labels.insert(s.label)
+                positions[s.label, default: []].append("\(x),\(y)")
+                values[s.label, default: []].append(value)
                 hasher.combine(s.label)
-                hasher.combine(Int(s.frame.minX)); hasher.combine(Int(s.frame.minY))
-                hasher.combine(String(describing: s.value))
+                hasher.combine(x); hasher.combine(y)
+                hasher.combine(value)
             }
             s.children.forEach(walk)
         }
         walk(root)
-        return Signature(hash: hasher.finalize(), labels: labels)
+        return Signature(hash: hasher.finalize(), labels: labels,
+                         positions: positions.mapValues { $0.sorted() },
+                         values: values.mapValues { $0.sorted() })
     }
 }
