@@ -1,6 +1,10 @@
 # SimPilot
 
+**中文** | [English](README.en.md)
+
 iOS 模擬器自動化的 CLI 加選單列 app。
+
+相關：[duo-verify-skill](https://github.com/peter6601/duo-verify-skill)：用 SimPilot 在 iPhone Duo 上自動驗畫面的 Claude Code skill。
 
 - 讀畫面上的元素：label、role、frame。
 - 用 label 點按鈕。
@@ -33,7 +37,7 @@ iPhone Duo 是折疊機：有外螢幕、內螢幕，還有折痕。同一個畫
 
 手動測的麻煩：
 
-- 3 個姿態 × 4 個旋轉方向，一個畫面就有 12 種組合。
+- 一個畫面要測 9 種組合：半折、攤開各 4 個方向，加上闔起 1 格。
 - Device Hub 的姿態按鈕偶爾會吞掉點擊，切了不一定到位。
 - 轉軸有遲滯：同一個角度，亮的可能是外螢幕也可能是內螢幕。
 - 按鈕壓到狀態列、home indicator 或折痕，肉眼不容易看出來。
@@ -43,7 +47,7 @@ SimPilot 幫你做到：
 - `duo pose` 從終端機切到 closed、book、open，切完確認亮的是哪一面，沒到位就重點。
 - `duo hinge` 讀回目前姿態、亮的是哪一面、畫面方向。
 - `elements` 的座標跟著目前的螢幕和方向走，可以直接算按鈕有沒有壓到折痕或系統區域。
-- 搭配 [duo-verify](https://github.com/peter6601/duo-verify-skill)，agent 可以自己跑完 12 格矩陣，交出每一格的問題清單。
+- 搭配 [duo-verify](https://github.com/peter6601/duo-verify-skill)，agent 可以自己跑完 9 格矩陣，交出每一格的問題清單。
 
 ## 怎麼運作
 
