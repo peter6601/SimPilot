@@ -6,6 +6,8 @@ A CLI and menu bar app for iOS Simulator automation.
 
 Related: [duo-verify-skill](https://github.com/peter6601/duo-verify-skill), a Claude Code skill that uses SimPilot to check screens on iPhone Duo.
 
+Slides: [Resident co-pilot](https://ios-dev-skill-deck.vercel.app/simpilot/) (Traditional Chinese): why SimPilot exists, how it works, and how it helps on iPhone Duo.
+
 - Read on-screen elements: label, role, frame.
 - Tap buttons by label.
 - Switch iPhone Duo poses and read the current pose back.

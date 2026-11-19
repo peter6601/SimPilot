@@ -6,6 +6,8 @@ iOS 模擬器自動化的 CLI 加選單列 app。
 
 相關：[duo-verify-skill](https://github.com/peter6601/duo-verify-skill)：用 SimPilot 在 iPhone Duo 上自動驗畫面的 Claude Code skill。
 
+簡報：[常駐副駕](https://ios-dev-skill-deck.vercel.app/simpilot/)：一次看懂 SimPilot 為什麼做、怎麼運作、在 Duo 上怎麼用。
+
 - 讀畫面上的元素：label、role、frame。
 - 用 label 點按鈕。
 - 切 iPhone Duo 的姿態，讀回目前姿態。
